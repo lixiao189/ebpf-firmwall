@@ -8,6 +8,7 @@ struct packet {
   u32 src_ip;
   u32 dst_ip;
   u8 protocol;
+  u64 timestamp;
 
   // ICMP info
   u8 icmp_type;
@@ -31,6 +32,9 @@ int extract_pkt_info(struct xdp_md *ctx) {
     // TODO: need an alert to indicate that the ring buffer is full
     return XDP_DROP;
   }
+
+  // Generate timestamp data
+  pkt->timestamp = bpf_ktime_get_ns();
 
   // Fetch the packet data
   void *data = (void *)(long)ctx->data;
