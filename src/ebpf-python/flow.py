@@ -14,8 +14,6 @@ class FlowGenerator(BaseModel):
         fwd_id = packet.id
         bwd_id = packet.bwd_id
 
-        print(fwd_id)  # TODO: debug
-
         if fwd_id not in self.flows and bwd_id not in self.flows:
             pass
         else:
