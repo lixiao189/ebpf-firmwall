@@ -10,10 +10,13 @@ poetry env info --path
 
 ## Folder structure
 
-### data folder
+### ebpf 
 
-ML model puts at here
+> the ebpf codes
 
-### test folder
+- data folder: ML model puts at here
+- test folder Tests
 
-Tests
+### waf
+
+> the reverse proxy 
