@@ -8,7 +8,9 @@ import (
 )
 
 func main() {
-	target, err := url.Parse("http://example.com")
+	backend := "http://127.0.0.1:8081"
+
+	target, err := url.Parse(backend)
 	if err != nil {
 		fmt.Println("Error parsing target URL:", err)
 		return
