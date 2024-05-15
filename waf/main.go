@@ -25,11 +25,26 @@ func main() {
 
 	// Redirect any request to the target URL
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("Proxying request to:", r.URL)
+		// 提取 Get 参数
+		getQuery := r.URL.Query()
+		fmt.Println("Get 参数:", getQuery)
+
+		// 提取 Post 参数
+		if r.Method == "POST" {
+			body, err := r.GetBody()
+			if err != nil {
+				fmt.Println("Error reading body:", err)
+				return
+			} else {
+                // TODO: fix post body error
+				fmt.Println("Post 参数:", body)
+			}
+		}
+
 		proxy.ServeHTTP(w, r)
 	})
 
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+	if err := http.ListenAndServe("0.0.0.0:8080", nil); err != nil {
 		fmt.Println("Error starting server:", err)
 	}
 }
