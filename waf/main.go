@@ -30,7 +30,7 @@ func main() {
 		fmt.Println("Get 参数:", getQuery)
 
 		// 提取 Post 参数
-		if r.Method == "POST" {
+		if r.Method != "GET" {
 			body, err := r.GetBody()
 			if err != nil {
 				fmt.Println("Error reading body:", err)
