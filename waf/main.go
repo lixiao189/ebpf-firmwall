@@ -1,7 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -31,14 +34,15 @@ func main() {
 
 		// 提取 Post 参数
 		if r.Method != "GET" {
-			body, err := r.GetBody()
+			// 读取 POST 请求 body
+			body, err := ioutil.ReadAll(r.Body)
 			if err != nil {
-				fmt.Println("Error reading body:", err)
+				http.Error(w, "Failed to read request body", http.StatusInternalServerError)
 				return
-			} else {
-                // TODO: fix post body error
-				fmt.Println("Post 参数:", body)
 			}
+            fmt.Println(string(body))
+			// 将 body 写回请求体，以便转发给目标服务器
+			r.Body = ioutil.NopCloser(io.NopCloser(bytes.NewBuffer(body)))
 		}
 
 		proxy.ServeHTTP(w, r)
