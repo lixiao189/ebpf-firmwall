@@ -2,20 +2,33 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"fmt"
+	"time"
+
+	// "context"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-func main() {
-	backend := "http://127.0.0.1:8081"
+func sendToRabbitMQ(ch *amqp.Channel, ctx context.Context, msg []byte) {
+	err := ch.Publish("", QUEUE_NAME, false, false, amqp.Publishing{
+		ContentType: "text/plain",
+		Body:        msg,
+	})
+	logOnError(err, "Failed to publish a message")
+}
 
-	target, err := url.Parse(backend)
+func wafStart(ch *amqp.Channel, ctx context.Context) {
+	target, err := url.Parse(BACKEND)
 	if err != nil {
-		fmt.Println("Error parsing target URL:", err)
+		log.Println("Error parsing target URL:", err)
 		return
 	}
 
@@ -28,19 +41,29 @@ func main() {
 
 	// Redirect any request to the target URL
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		// 提取 Get 参数
-		getQuery := r.URL.Query()
-		fmt.Println("Get 参数:", getQuery)
+		// Log for debugging
+		log.Println(r.RemoteAddr, r.Method, r.URL)
 
-		// 提取 Post 参数
+		getQuery := r.URL.Query()
+		for _, queryArr := range getQuery {
+			for _, queryData := range queryArr {
+				// 发送 GET 请求参数到 RabbitMQ
+				sendToRabbitMQ(ch, ctx, []byte(fmt.Sprintf("%v+%v", r.RemoteAddr, queryData)))
+			}
+		}
+
 		if r.Method != "GET" {
-			// 读取 POST 请求 body
+			// 读取 HTTP 请求 body
 			body, err := ioutil.ReadAll(r.Body)
 			if err != nil {
 				http.Error(w, "Failed to read request body", http.StatusInternalServerError)
 				return
 			}
-            fmt.Println(string(body))
+			// 发送 body 数据到 RabbitMQ
+			mqData := []byte(r.RemoteAddr + "+")
+			mqData = append(mqData, body...)
+			sendToRabbitMQ(ch, ctx, mqData)
+
 			// 将 body 写回请求体，以便转发给目标服务器
 			r.Body = ioutil.NopCloser(io.NopCloser(bytes.NewBuffer(body)))
 		}
@@ -49,6 +72,27 @@ func main() {
 	})
 
 	if err := http.ListenAndServe("0.0.0.0:8080", nil); err != nil {
-		fmt.Println("Error starting server:", err)
+		log.Println("Error starting server:", err)
 	}
+}
+
+func main() {
+	// connect to RabbitMQ
+	conn, err := amqp.Dial(RABBITMQ)
+	defer conn.Close()
+	logOnError(err, "Failed to connect to RabbitMQ")
+
+	// open a channel
+	ch, err := conn.Channel()
+	defer ch.Close()
+	logOnError(err, "Failed to open a channel")
+
+	// make sure the queue exists
+	_, err = ch.QueueDeclare(QUEUE_NAME, false, false, false, false, nil)
+	logOnError(err, "Failed to declare a queue")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	wafStart(ch, ctx)
 }
