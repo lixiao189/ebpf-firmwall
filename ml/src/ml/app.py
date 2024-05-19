@@ -6,8 +6,9 @@ import pika
 
 from loguru import logger
 from config import RABBIT_MQ_HOST, WAF_TO_ML_QUEUE, ML_TO_EBPF_QUEUE
-from concurrent.futures import ThreadPoolExecutor, thread
+from concurrent.futures import ThreadPoolExecutor
 from sklearn.feature_extraction.text import TfidfVectorizer
+from util import addr_to_ip
 
 
 def load(name):
@@ -33,21 +34,21 @@ def predict_task(input, channel, vectorizer, model):
     if len(input) != 2:
         return
 
-    ip_info = input[0]
+    addr_info = input[0]
     http_data = input[1]
 
-    logger.info(f'ip_info: {ip_info}, http_data: {http_data}')
+    logger.info(f'ip_info: {addr_to_ip(addr_info)}, http_data: {http_data}')
 
     # preidict with the model
     X = vectorizer.transform([http_data])
     y = model.predict(X)
 
     if y[0] == 1:
-        logger.error(f'{ip_info} has a bad query')
+        logger.error(f'{addr_to_ip(addr_info)} has a bad query')
 
     # publish a message thread safing
     channel.connection.add_callback_threadsafe(
-        lambda: send_result_to_ebpf(channel, ip_info, y))
+        lambda: send_result_to_ebpf(channel, addr_to_ip(addr_info), y))
 
 
 def main():

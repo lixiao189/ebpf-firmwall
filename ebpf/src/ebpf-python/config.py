@@ -1,0 +1,3 @@
+RABBIT_MQ_HOST = '192.168.215.2'
+ML_TO_EBPF_QUEUE = 'ml_to_ebpf'
+
