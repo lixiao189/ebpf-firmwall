@@ -1,12 +1,35 @@
 import os
 import sys
 import pika
+import socket
+import struct
 
 from config import ML_TO_EBPF_QUEUE, RABBIT_MQ_HOST
 from bcc import BPF
+from ctypes import c_uint32, c_uint8
 
-ifname = "lo"
+ifname = "eth0"
 bpf = BPF(src_file=b"xdp.c")
+
+
+def callback(ch, method, properties, body):
+    data = body.decode('utf-8').split('+', 1)
+    if len(data) != 2:
+        return
+    ip = socket.inet_aton(data[0])
+    ip = c_uint32(struct.unpack("!I", ip)[0])
+    predict_result = data[1]
+
+    print(ip) # debug
+
+    # update the map with the new prediction result
+    if predict_result == "1":
+        bpf["black_list"][ip] = c_uint8(1)
+    else:
+        try:
+            bpf["black_list"].__delitem__(ip)
+        except KeyError:
+            pass
 
 
 def main():
@@ -20,9 +43,6 @@ def main():
 
     # Declare the queue
     channel.queue_declare(queue=ML_TO_EBPF_QUEUE)
-
-    def callback(ch, method, properties, body):
-        print(f" [x] Received {body}")
 
     channel.basic_consume(
         queue=ML_TO_EBPF_QUEUE, on_message_callback=callback, auto_ack=True)
