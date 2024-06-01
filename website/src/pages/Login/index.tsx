@@ -1,20 +1,80 @@
-import { PageContainer } from '@ant-design/pro-components';
-import { Access, useAccess } from '@umijs/max';
-import { Button } from 'antd';
+import { login } from '@/services/user';
+import { LockOutlined, UserOutlined } from '@ant-design/icons';
+import { LoginFormPage, ProFormText } from '@ant-design/pro-components';
+import { Helmet } from '@umijs/max';
+import { createStyles } from 'antd-style';
+
+const useStyles = createStyles(({}) => {
+  return {
+    container: {
+      display: 'flex',
+      flexDirection: 'column',
+      height: '100vh',
+      overflow: 'auto',
+      backgroundImage:
+        "url('https://mdn.alipayobjects.com/yuyan_qk0oxh/afts/img/V-_oS6r-i7wAAAAAAAAAAAAAFl94AQBr')",
+      backgroundSize: '100% 100%',
+    },
+  };
+});
 
 const LoginPage: React.FC = () => {
-  const access = useAccess();
+  const { styles } = useStyles();
+
   return (
-    <PageContainer
-      ghost
-      header={{
-        title: '攻击事件',
-      }}
-    >
-      <Access accessible={access.canSeeAdmin}>
-        <Button>只有 Admin 可以看到这个按钮</Button>
-      </Access>
-    </PageContainer>
+    <div className={styles.container}>
+      <Helmet>
+        <title>登录页</title>
+      </Helmet>
+
+      <div
+        style={{
+          flex: 1,
+          padding: '32px 0',
+        }}
+      >
+        <LoginFormPage
+          containerStyle={{
+            backgroundColor: 'rgba(255,255,255,0.25)',
+            backdropFilter: 'blur(4px)',
+          }}
+          onFinish={async (values) => {
+            await login(values as API.LoginRequest);
+            window.location.href = '/dashboard';
+          }}
+        >
+          <ProFormText
+            name="username"
+            fieldProps={{
+              size: 'large',
+              prefix: <UserOutlined />,
+            }}
+            placeholder="用户名"
+            rules={[
+              {
+                required: true,
+                message: '请输入用户名!',
+              },
+            ]}
+          />
+
+          <ProFormText.Password
+            name="password"
+            fieldProps={{
+              size: 'large',
+              prefix: <LockOutlined />,
+            }}
+            placeholder="密码"
+            rules={[
+              {
+                required: true,
+                message: '请输入密码!',
+              },
+            ]}
+          />
+        </LoginFormPage>
+      </div>
+    </div>
   );
 };
 

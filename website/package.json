@@ -2,8 +2,8 @@
   "private": true,
   "author": "node189 <node189@icloud.com>",
   "scripts": {
-    "dev": "max dev",
     "build": "max build",
+    "dev": "max dev",
     "format": "prettier --cache --write .",
     "postinstall": "max setup",
     "setup": "max setup",
@@ -13,7 +13,8 @@
     "@ant-design/icons": "^5.0.1",
     "@ant-design/pro-components": "^2.4.4",
     "@umijs/max": "^4.2.8",
-    "antd": "^5.4.0"
+    "antd": "^5.4.0",
+    "antd-style": "^3.6.2"
   },
   "devDependencies": {
     "@types/react": "^18.0.33",

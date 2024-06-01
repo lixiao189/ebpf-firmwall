@@ -8,7 +8,6 @@ import (
 
 	// "context"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -54,7 +53,7 @@ func wafStart(ch *amqp.Channel, ctx context.Context) {
 
 		if r.Method != "GET" {
 			// 读取 HTTP 请求 body
-			body, err := ioutil.ReadAll(r.Body)
+			body, err := io.ReadAll(r.Body)
 			if err != nil {
 				http.Error(w, "Failed to read request body", http.StatusInternalServerError)
 				return
@@ -65,7 +64,7 @@ func wafStart(ch *amqp.Channel, ctx context.Context) {
 			sendToRabbitMQ(ch, ctx, mqData)
 
 			// 将 body 写回请求体，以便转发给目标服务器
-			r.Body = ioutil.NopCloser(io.NopCloser(bytes.NewBuffer(body)))
+			r.Body = io.NopCloser(io.NopCloser(bytes.NewBuffer(body)))
 		}
 
 		proxy.ServeHTTP(w, r)
@@ -79,13 +78,13 @@ func wafStart(ch *amqp.Channel, ctx context.Context) {
 func main() {
 	// connect to RabbitMQ
 	conn, err := amqp.Dial(RABBITMQ)
-	defer conn.Close()
 	logOnError(err, "Failed to connect to RabbitMQ")
+	defer conn.Close()
 
 	// open a channel
 	ch, err := conn.Channel()
-	defer ch.Close()
 	logOnError(err, "Failed to open a channel")
+	defer ch.Close()
 
 	// make sure the queue exists
 	_, err = ch.QueueDeclare(QUEUE_NAME, false, false, false, false, nil)
