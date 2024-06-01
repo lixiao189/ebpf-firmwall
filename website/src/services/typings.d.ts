@@ -17,4 +17,10 @@ declare namespace API {
     name?: string;
     hasAdmin?: boolean;
   }
+
+  /*************** 网站设置相关  *********************/
+  type SiteSetting = {
+    title: string;
+    url: string;
+  }
 }

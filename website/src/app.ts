@@ -5,8 +5,8 @@ import { info } from '@/services/user';
 // 更多信息见文档：https://umijs.org/docs/api/runtime-config#getinitialstate
 export async function getInitialState(): Promise<API.UserInfo> {
   const res = await info();
-  console.log(res)
   if (res.success) {
+    localStorage.setItem('name', res.data.name || '');
     return res.data;
   } else {
     return {

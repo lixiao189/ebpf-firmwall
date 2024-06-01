@@ -1,9 +1,9 @@
-import { PageContainer } from '@ant-design/pro-components';
-import { Access, useAccess } from '@umijs/max';
+import { PageContainer, ProCard } from '@ant-design/pro-components';
 import { Button } from 'antd';
 
 const SettingsPage: React.FC = () => {
-  const access = useAccess();
+  const name = localStorage.getItem('name');
+
   return (
     <PageContainer
       ghost
@@ -11,9 +11,32 @@ const SettingsPage: React.FC = () => {
         title: '系统设置',
       }}
     >
-      <Access accessible={access.canSeeAdmin}>
-        <Button>只有 Admin 可以看到这个按钮</Button>
-      </Access>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <ProCard
+          bordered
+          title="登录设置"
+          extra={<Button type="primary">修改</Button>}
+        >
+          <div
+            style={{ display: 'flex', gap: '10px', flexDirection: 'column' }}
+          >
+            <div>
+              <strong>用户名</strong>: {name}
+            </div>
+          </div>
+        </ProCard>
+
+        <ProCard bordered title="系统信息">
+          <div style={{ display: 'flex', gap: '5px', flexDirection: 'column' }}>
+            <div>
+              <strong>系统名称</strong>: 基于 eBPF 的 web 防火墙
+            </div>
+            <div>
+              <strong>版本号</strong>: 1.0.0
+            </div>
+          </div>
+        </ProCard>
+      </div>
     </PageContainer>
   );
 };
