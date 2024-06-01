@@ -28,15 +28,15 @@ export default defineConfig({
       access: 'canSeeAdmin',
     },
     {
-      name: '规则管理',
-      path: '/rules',
-      component: './Rules',
-      access: 'canSeeAdmin',
-    },
-    {
       name: '攻击事件',
       path: '/events',
       component: './Events',
+      access: 'canSeeAdmin',
+    },
+    {
+      name: '规则管理',
+      path: '/rules',
+      component: './Rules',
       access: 'canSeeAdmin',
     },
     {
