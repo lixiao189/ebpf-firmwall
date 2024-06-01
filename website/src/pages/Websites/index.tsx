@@ -3,6 +3,7 @@ import {
   ActionType,
   FooterToolbar,
   PageContainer,
+  ProColumns,
   ProDescriptions,
   ProDescriptionsItemProps,
   ProTable,
@@ -90,11 +91,10 @@ const TableList: React.FC<unknown> = () => {
   const actionRef = useRef<ActionType>();
   const [row, setRow] = useState<API.UserInfo>();
   const [selectedRowsState, setSelectedRows] = useState<API.UserInfo[]>([]);
-  const columns: ProDescriptionsItemProps<API.UserInfo>[] = [
+  const columns: ProColumns<API.UserInfo>[] = [
     {
-      title: '名称',
+      title: '网站',
       dataIndex: 'name',
-      tip: '名称是唯一的 key',
       formItemProps: {
         rules: [
           {
@@ -105,18 +105,9 @@ const TableList: React.FC<unknown> = () => {
       },
     },
     {
-      title: '昵称',
+      title: '监听端口',
       dataIndex: 'nickName',
       valueType: 'text',
-    },
-    {
-      title: '性别',
-      dataIndex: 'gender',
-      hideInForm: true,
-      valueEnum: {
-        0: { text: '男', status: 'MALE' },
-        1: { text: '女', status: 'FEMALE' },
-      },
     },
     {
       title: '操作',
@@ -142,23 +133,22 @@ const TableList: React.FC<unknown> = () => {
   return (
     <PageContainer
       header={{
-        title: 'CRUD 示例',
+        title: '网站管理',
       }}
     >
       <ProTable<API.UserInfo>
-        headerTitle="查询表格"
+        headerTitle="网站列表"
         actionRef={actionRef}
         rowKey="id"
-        search={{
-          labelWidth: 120,
-        }}
+        search={false}
+        options={false}
         toolBarRender={() => [
           <Button
             key="1"
             type="primary"
             onClick={() => handleModalVisible(true)}
           >
-            新建
+            添加站点
           </Button>,
         ]}
         request={async (params, sorter, filter) => {

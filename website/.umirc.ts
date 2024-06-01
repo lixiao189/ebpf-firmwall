@@ -12,24 +12,28 @@ export default defineConfig({
   routes: [
     {
       path: '/',
-      redirect: '/home',
+      redirect: '/dashboard',
     },
     {
-      name: '首页',
-      path: '/home',
-      component: './Home',
+      name: '数据统计',
+      path: '/dashboard',
+      component: './Dashboard',
     },
     {
-      name: '权限演示',
-      path: '/access',
-      component: './Access',
+      name: '攻击事件',
+      path: '/events',
+      component: './Events',
     },
     {
-      name: ' CRUD 示例',
-      path: '/table',
-      component: './Table',
+      name: '网站管理',
+      path: '/websites',
+      component: './Websites',
+    },
+    {
+      name: '系统设置',
+      path: '/settings',
+      component: './Settings',
     },
   ],
   npmClient: 'pnpm',
 });
-
