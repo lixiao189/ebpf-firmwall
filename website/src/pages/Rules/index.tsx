@@ -2,13 +2,13 @@ import { PageContainer } from '@ant-design/pro-components';
 import { Access, useAccess } from '@umijs/max';
 import { Button } from 'antd';
 
-const EventPage: React.FC = () => {
+const RulePage: React.FC = () => {
   const access = useAccess();
   return (
     <PageContainer
       ghost
       header={{
-        title: '攻击事件',
+        title: '规则管理',
       }}
     >
       <Access accessible={access.canSeeAdmin}>
@@ -18,4 +18,4 @@ const EventPage: React.FC = () => {
   );
 };
 
-export default EventPage;
+export default RulePage;

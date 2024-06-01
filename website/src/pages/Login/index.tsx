@@ -2,7 +2,7 @@ import { PageContainer } from '@ant-design/pro-components';
 import { Access, useAccess } from '@umijs/max';
 import { Button } from 'antd';
 
-const EventPage: React.FC = () => {
+const LoginPage: React.FC = () => {
   const access = useAccess();
   return (
     <PageContainer
@@ -18,4 +18,4 @@ const EventPage: React.FC = () => {
   );
 };
 
-export default EventPage;
+export default LoginPage;

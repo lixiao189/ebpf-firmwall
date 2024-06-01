@@ -5,7 +5,9 @@ export default defineConfig({
   access: {},
   model: {},
   initialState: {},
-  request: {},
+  request: {
+    dataField: 'data',
+  },
   layout: {
     title: '@umijs/max',
   },
@@ -18,6 +20,11 @@ export default defineConfig({
       name: '数据统计',
       path: '/dashboard',
       component: './Dashboard',
+    },
+    {
+      name: '规则管理',
+      path: '/rules',
+      component: './Rules',
     },
     {
       name: '攻击事件',
@@ -34,6 +41,7 @@ export default defineConfig({
       path: '/settings',
       component: './Settings',
     },
+    { path: '/*', component: '@/pages/404', layout: false },
   ],
   npmClient: 'pnpm',
 });
