@@ -16,8 +16,8 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-func sendToRabbitMQ(ch *amqp.Channel, ctx context.Context, msg []byte) {
-	err := ch.Publish("", QUEUE_NAME, false, false, amqp.Publishing{
+func sendToRabbitMQ(ch *amqp.Channel, _ context.Context, msg []byte) {
+	err := ch.Publish("", Rabbit.Queue, false, false, amqp.Publishing{
 		ContentType: "text/plain",
 		Body:        msg,
 	})
@@ -77,7 +77,7 @@ func wafStart(ch *amqp.Channel, ctx context.Context) {
 
 func main() {
 	// connect to RabbitMQ
-	conn, err := amqp.Dial(RABBITMQ)
+	conn, err := amqp.Dial(Rabbit.Server)
 	logOnError(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
 
@@ -87,7 +87,7 @@ func main() {
 	defer ch.Close()
 
 	// make sure the queue exists
-	_, err = ch.QueueDeclare(QUEUE_NAME, false, false, false, false, nil)
+	_, err = ch.QueueDeclare(Rabbit.Queue, false, false, false, false, nil)
 	logOnError(err, "Failed to declare a queue")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)

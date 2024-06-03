@@ -1,0 +1,12 @@
+[rabbitmq]
+server = "amqp://guest:guest@127.0.0.1:5672/"
+queue = "waf_to_ml"
+
+[[websites]]
+name = "example"
+api = "/api/v1/test"
+url = "http://127.0.0.1:8081"
+
+[[rules]]
+name = "SQL Injection"
+regex = ".*?(select|union|insert|update|delete|drop|alter|create|database|table|grant|exec|execute|xp_cmdshell|sp_oacreate|sp_oamethod|sp_addextendedproc|sp_addlinkedserver|sp_addlinkedsrvlogin|sp_addtype|sp_addserver|sp_addremotelogin|sp_addrolemember|sp_addrole|sp_addapprole|sp_addalias|sp_adduser|sp_addlogin|sp_addgroup|sp_addextendedproperty|sp_addmessage"
