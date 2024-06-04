@@ -75,6 +75,6 @@ func init() {
 			r.Host = target.Host
 		}
 
-		ProxyMap[website.Name] = proxy
+		ProxyMap[website.API] = proxy
 	}
 }

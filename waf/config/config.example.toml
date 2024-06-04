@@ -9,7 +9,7 @@ queue2 = "ml_to_waf"
 
 [[websites]]
 name = "example"
-api = "/api/v1/test"
+api = "/api"
 url = "http://127.0.0.1:8081"
 
 [[rules]]

@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"regexp"
+	"strings"
 	"time"
 
 	// "context"
@@ -68,7 +69,17 @@ func wafStart(ch *amqp.Channel, ctx context.Context) {
 		}
 
 		// 转发请求到目标服务器
-		ProxyMap[r.URL.Path].ServeHTTP(w, r)
+		path := r.URL.Path
+		for api, proxy := range ProxyMap {
+			if strings.HasPrefix(path, api) {
+				// 重写请求路径
+				r.URL.Path = strings.TrimPrefix(path, api)
+				proxy.ServeHTTP(w, r)
+				return
+			}
+		}
+
+		http.Error(w, "Not Found", http.StatusNotFound)
 	})
 
 	if err := http.ListenAndServe(fmt.Sprintf("%v:%v", ServerConfig.Host, ServerConfig.Port), nil); err != nil {
