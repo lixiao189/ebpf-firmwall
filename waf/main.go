@@ -1,85 +1,38 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"fmt"
-	"regexp"
-	"strings"
 	"time"
 
 	// "context"
-	"io"
+
 	"log"
-	"net/http"
 
 	"github.com/fvbock/endless"
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-func sendToRabbitMQ(ch *amqp.Channel, queue string, _ context.Context, msg []byte) {
-	err := ch.Publish("", queue, false, false, amqp.Publishing{
-		ContentType: "text/plain",
-		Body:        msg,
-	})
-	logOnError(err, "Failed to publish a message")
-}
-
 func wafStart(ch *amqp.Channel, ctx context.Context) {
 	r := gin.Default()
-	r.Any("/*any", func(c *gin.Context) {
-		// 获取请求地址 方法 路径
-		log.Println(c.Request.RemoteAddr, c.Request.Method, c.Request.URL)
+	store, err := redis.NewStore(10, "tcp", fmt.Sprintf("%v:%v", RedisConfig.Host, RedisConfig.Port), "", []byte("secret"))
+	logOnError(err, "Failed to connect to Redis")
+	r.Use(sessions.Sessions("mysession", store))
 
-		getQuery := c.Request.URL.Query()
-		for _, queryArr := range getQuery {
-			for _, queryData := range queryArr {
-				for _, rule := range Rules {
-					if rule.Regex == "" {
-						continue
-					}
-
-					if match, _ := regexp.MatchString(rule.Regex, queryData); match {
-						log.Println("Blocked by regex:", c.Request.RemoteAddr, queryData)
-						sendToRabbitMQ(ch, Rabbit.Queue2, ctx, []byte(fmt.Sprintf("%v+1", c.Request.RemoteAddr))) // 发送到 eBPF 系统直接添加黑名单
-						c.String(http.StatusForbidden, "Blocked by WAF")
-						return
-					}
-				}
-
-				// 发送 GET 请求参数到 RabbitMQ
-				sendToRabbitMQ(ch, Rabbit.Queue1, ctx, []byte(fmt.Sprintf("%v+%v", c.Request.RemoteAddr, queryData)))
-			}
+	v1 := r.Group("/api/v1")
+	{
+		userAPI := v1.Group("/user")
+		{
+			userAPI.POST("/login", LoginController)
+            userAPI.GET("/info", InfoController)
 		}
+	}
 
-		if c.Request.Method != "GET" {
-			// 读取 HTTP 请求 body
-			body, err := io.ReadAll(c.Request.Body)
-			if err != nil {
-				c.String(http.StatusInternalServerError, "Failed to read request body")
-				return
-			}
-			// 发送 body 数据到 RabbitMQ
-			mqData := []byte(c.Request.RemoteAddr + "+")
-			mqData = append(mqData, body...)
-			sendToRabbitMQ(ch, Rabbit.Queue1, ctx, mqData)
-
-			// 将 body 写回请求体，以便转发给目标服务器
-			c.Request.Body = io.NopCloser(io.NopCloser(bytes.NewBuffer(body)))
-		}
-
-		// 通过反向代理转发请求
-		path := c.Request.URL.Path
-		for api, proxy := range ProxyMap {
-			if strings.HasPrefix(path, api) {
-				c.Request.URL.Path = strings.TrimPrefix(path, api)
-				proxy.ServeHTTP(c.Writer, c.Request)
-				return
-			}
-		}
-
-		c.String(http.StatusNotFound, "Not Found")
+	r.NoRoute(func(c *gin.Context) {
+		WafController(c, ch, ctx)
 	})
 
 	if err := endless.ListenAndServe(fmt.Sprintf("%v:%v", ServerConfig.Host, ServerConfig.Port), r); err != nil {

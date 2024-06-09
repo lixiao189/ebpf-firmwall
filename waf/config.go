@@ -13,9 +13,18 @@ var BACKEND = "http://127.0.0.1:8081"
 type Server struct {
 	Host string
 	Port int
+	User string
+	Pass string
 }
 
 var ServerConfig Server
+
+type Redis struct {
+	Host string
+	Port int
+}
+
+var RedisConfig Redis
 
 type RabbitMQ struct {
 	Server string
@@ -50,6 +59,10 @@ func init() {
 	// load the server config
 	err = viper.UnmarshalKey("server", &ServerConfig)
 	logOnError(err, "Failed to unmarshal the server")
+
+	// load redis config
+	err = viper.UnmarshalKey("redis", &RedisConfig)
+	logOnError(err, "Failed to unmarshal the redis")
 
 	// load rabbitmq config
 	err = viper.UnmarshalKey("rabbitmq", &Rabbit)
