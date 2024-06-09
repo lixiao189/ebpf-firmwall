@@ -29,6 +29,14 @@ func wafStart(ch *amqp.Channel, ctx context.Context) {
 			userAPI.POST("/login", LoginController)
             userAPI.GET("/info", InfoController)
 		}
+
+        adminAPI := v1.Group("/admin")
+        adminAPI.Use(Auth())
+        {
+            adminAPI.GET("/rules/list", ListRulesController)
+            adminAPI.POST("/rules/add", AddRuleController)
+            adminAPI.POST("/rules/delete", DeleteRuleController)
+        }
 	}
 
 	r.NoRoute(func(c *gin.Context) {

@@ -44,8 +44,8 @@ var Websites []Website
 var ProxyMap = make(map[string]*httputil.ReverseProxy)
 
 type Rule struct {
-	Name  string
-	Regex string
+	Name  string `json:"name"`
+	Regex string `json:"regex,omitempty"`
 }
 
 var Rules []Rule

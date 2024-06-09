@@ -13,8 +13,10 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	amqp "github.com/rabbitmq/amqp091-go"
+	"github.com/spf13/viper"
 )
 
+// WafController construct a new reverse proxy
 func WafController(c *gin.Context, ch *amqp.Channel, ctx context.Context) {
 	// 获取请求地址 方法 路径
 	log.Println(c.Request.RemoteAddr, c.Request.Method, c.Request.URL)
@@ -69,6 +71,7 @@ func WafController(c *gin.Context, ch *amqp.Channel, ctx context.Context) {
 	c.String(http.StatusNotFound, "Not Found")
 }
 
+// LoginController handles login request
 func LoginController(c *gin.Context) {
 	var req LoginRequest
 	if err := c.BindJSON(&req); err != nil {
@@ -94,6 +97,7 @@ func LoginController(c *gin.Context) {
 	}
 }
 
+// InfoController handles user info request
 func InfoController(c *gin.Context) {
 	session := sessions.Default(c)
 
@@ -108,4 +112,52 @@ func InfoController(c *gin.Context) {
 		Name:     name,
 		HasAdmin: hasAdmin,
 	}))
+}
+
+// ListRulesController handles list rules request
+func ListRulesController(c *gin.Context) {
+	c.JSON(http.StatusOK, ResponseOK(Rules))
+}
+
+// AddRuleController handles add rule request
+func AddRuleController(c *gin.Context) {
+	var rule Rule
+	if err := c.BindJSON(&rule); err != nil {
+		c.String(http.StatusBadRequest, "Bad Request")
+		return
+	}
+
+	Rules = append(Rules, rule)
+
+	// 写入到配置文件中
+	viper.Set("rules", Rules)
+	viper.WriteConfig()
+
+	c.JSON(http.StatusOK, ResponseOK("Rule added"))
+}
+
+// DeleteRuleController handles delete rule request
+func DeleteRuleController(c *gin.Context) {
+	var rule Rule
+	if err := c.BindJSON(&rule); err != nil {
+		c.String(http.StatusBadRequest, "Bad Request")
+		return
+	}
+
+	for i, r := range Rules {
+		if r.Name == rule.Name {
+			Rules = append(Rules[:i], Rules[i+1:]...)
+            // 写入到配置文件中
+            viper.Set("rules", Rules)
+            viper.WriteConfig()
+			c.JSON(http.StatusOK, ResponseOK("Rule deleted"))
+			return
+		}
+	}
+
+	// 写入到配置文件中
+	viper.Set("rules", Rules)
+	viper.WriteConfig()
+
+	c.JSON(http.StatusOK, ResponseFailed(404, "Rule not found"))
 }
