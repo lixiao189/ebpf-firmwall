@@ -33,9 +33,15 @@ func wafStart(ch *amqp.Channel, ctx context.Context) {
         adminAPI := v1.Group("/admin")
         adminAPI.Use(Auth())
         {
+            // Rules api
             adminAPI.GET("/rules/list", ListRulesController)
             adminAPI.POST("/rules/add", AddRuleController)
             adminAPI.POST("/rules/delete", DeleteRuleController)
+
+            // Websites api
+            adminAPI.GET("/websites/list", ListWebsitesController)
+            adminAPI.POST("/websites/add", AddWebsiteController)
+            adminAPI.POST("/websites/delete", DeleteWebsiteController)
         }
 	}
 

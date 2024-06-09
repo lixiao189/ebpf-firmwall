@@ -147,9 +147,9 @@ func DeleteRuleController(c *gin.Context) {
 	for i, r := range Rules {
 		if r.Name == rule.Name {
 			Rules = append(Rules[:i], Rules[i+1:]...)
-            // 写入到配置文件中
-            viper.Set("rules", Rules)
-            viper.WriteConfig()
+			// 写入到配置文件中
+			viper.Set("rules", Rules)
+			viper.WriteConfig()
 			c.JSON(http.StatusOK, ResponseOK("Rule deleted"))
 			return
 		}
@@ -160,4 +160,52 @@ func DeleteRuleController(c *gin.Context) {
 	viper.WriteConfig()
 
 	c.JSON(http.StatusOK, ResponseFailed(404, "Rule not found"))
+}
+
+// ListWebsitesController handles list websites request
+func ListWebsitesController(c *gin.Context) {
+	c.JSON(http.StatusOK, ResponseOK(Websites))
+}
+
+// AddWebsiteController handles add website request
+func AddWebsiteController(c *gin.Context) {
+	var website Website
+	if err := c.BindJSON(&website); err != nil {
+		c.String(http.StatusBadRequest, "Bad Request")
+		return
+	}
+
+	Websites = append(Websites, website)
+
+	// 写入到配置文件中
+	viper.Set("websites", Websites)
+	viper.WriteConfig()
+
+	c.JSON(http.StatusOK, ResponseOK("Website added"))
+}
+
+// DeleteWebsiteController handles delete website request
+func DeleteWebsiteController(c *gin.Context) {
+	var website Website
+	if err := c.BindJSON(&website); err != nil {
+		c.String(http.StatusBadRequest, "Bad Request")
+		return
+	}
+
+	for i, w := range Websites {
+		if w.Name == website.Name {
+			Websites = append(Websites[:i], Websites[i+1:]...)
+			// 写入到配置文件中
+			viper.Set("websites", Websites)
+			viper.WriteConfig()
+			c.JSON(http.StatusOK, ResponseOK("Website deleted"))
+			return
+		}
+	}
+
+	// 写入到配置文件中
+	viper.Set("websites", Websites)
+	viper.WriteConfig()
+
+	c.JSON(http.StatusOK, ResponseFailed(404, "Website not found"))
 }

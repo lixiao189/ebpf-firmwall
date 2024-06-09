@@ -35,9 +35,9 @@ type RabbitMQ struct {
 var Rabbit RabbitMQ
 
 type Website struct {
-	Name string
-	API  string
-	URL  string
+	Name string `json:"name"`
+	API  string `json:"api,omitempty"`
+	URL  string `json:"url,omitempty"`
 }
 
 var Websites []Website
