@@ -44,6 +44,7 @@ const RulePage: React.FC = () => {
               name: record.name,
             });
             if (res.success) {
+              messageApi.success('删除成功');
               ref.current?.reload();
             } else {
               messageApi.error('删除失败');

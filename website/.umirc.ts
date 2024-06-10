@@ -28,18 +28,6 @@ export default defineConfig({
       redirect: '/login',
     },
     {
-      name: '数据统计',
-      path: '/dashboard',
-      component: './Dashboard',
-      access: 'canSeeAdmin',
-    },
-    {
-      name: '攻击事件',
-      path: '/events',
-      component: './Events',
-      access: 'canSeeAdmin',
-    },
-    {
       name: '规则管理',
       path: '/rules',
       component: './Rules',

@@ -19,10 +19,10 @@ declare namespace API {
   };
 
   /*************** 网站设置相关  *********************/
-  type SiteSetting = {
+  type Website = {
     name: string;
     api: string;
-    upstream: string;
+    url: string;
   };
 
   /*************** 规则设置相关  *********************/

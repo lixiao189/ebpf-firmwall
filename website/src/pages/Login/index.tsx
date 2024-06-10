@@ -45,7 +45,7 @@ const LoginPage: React.FC = () => {
             onFinish={async (values) => {
               const res = await login(values as API.LoginRequest);
               if (res.success) {
-                window.location.href = '/dashboard';
+                window.location.href = '/rules';
               } else {
                 messageApi.error('登录失败');
               }
