@@ -289,6 +289,9 @@ func DeleteWebsiteController(c *gin.Context) {
 		return
 	}
 
+	// 删除网页反向代理
+	delete(ProxyMap, website.API)
+
 	for i, w := range Websites {
 		if w.Name == website.Name {
 			Websites = append(Websites[:i], Websites[i+1:]...)
