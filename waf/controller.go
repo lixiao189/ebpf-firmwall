@@ -136,6 +136,28 @@ func AddRuleController(c *gin.Context) {
 	c.JSON(http.StatusOK, ResponseOK("Rule added"))
 }
 
+// UpdateRuleController handles update rule request
+func UpdateRuleController(c *gin.Context) {
+	var rule Rule
+	if err := c.BindJSON(&rule); err != nil {
+		c.String(http.StatusBadRequest, "Bad Request")
+		return
+	}
+
+	for i, r := range Rules {
+		if r.Name == rule.Name {
+			Rules[i] = rule
+			// 写入到配置文件中
+			viper.Set("rules", Rules)
+			viper.WriteConfig()
+			c.JSON(http.StatusOK, ResponseOK("Rule updated"))
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, ResponseFailed(404, "Rule not found"))
+}
+
 // DeleteRuleController handles delete rule request
 func DeleteRuleController(c *gin.Context) {
 	var rule Rule
@@ -154,10 +176,6 @@ func DeleteRuleController(c *gin.Context) {
 			return
 		}
 	}
-
-	// 写入到配置文件中
-	viper.Set("rules", Rules)
-	viper.WriteConfig()
 
 	c.JSON(http.StatusOK, ResponseFailed(404, "Rule not found"))
 }

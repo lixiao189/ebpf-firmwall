@@ -27,22 +27,23 @@ func wafStart(ch *amqp.Channel, ctx context.Context) {
 		userAPI := v1.Group("/user")
 		{
 			userAPI.POST("/login", LoginController)
-            userAPI.GET("/info", InfoController)
+			userAPI.GET("/info", InfoController)
 		}
 
-        adminAPI := v1.Group("/admin")
-        adminAPI.Use(Auth())
-        {
-            // Rules api
-            adminAPI.GET("/rules/list", ListRulesController)
-            adminAPI.POST("/rules/add", AddRuleController)
-            adminAPI.POST("/rules/delete", DeleteRuleController)
+		adminAPI := v1.Group("/admin")
+		adminAPI.Use(Auth())
+		{
+			// Rules api
+			adminAPI.GET("/rules/list", ListRulesController)
+			adminAPI.POST("/rules/add", AddRuleController)
+			adminAPI.POST("/rules/update", UpdateRuleController)
+			adminAPI.POST("/rules/delete", DeleteRuleController)
 
-            // Websites api
-            adminAPI.GET("/websites/list", ListWebsitesController)
-            adminAPI.POST("/websites/add", AddWebsiteController)
-            adminAPI.POST("/websites/delete", DeleteWebsiteController)
-        }
+			// Websites api
+			adminAPI.GET("/websites/list", ListWebsitesController)
+			adminAPI.POST("/websites/add", AddWebsiteController)
+			adminAPI.POST("/websites/delete", DeleteWebsiteController)
+		}
 	}
 
 	r.NoRoute(func(c *gin.Context) {

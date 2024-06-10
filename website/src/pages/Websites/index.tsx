@@ -33,7 +33,7 @@ const WebsitesPage: React.FC = () => {
         columns={columns}
         search={false}
         options={false}
-        toolBarRender={() => [<Button type="primary">添加网站</Button>]}
+        toolBarRender={() => [<Button key="add" type="primary">添加网站</Button>]}
       />
     </PageContainer>
   );

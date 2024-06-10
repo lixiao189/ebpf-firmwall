@@ -20,7 +20,6 @@ declare namespace API {
 
   /*************** 网站设置相关  *********************/
   type SiteSetting = {
-    id: number;
     name: string;
     api: string;
     upstream: string;
@@ -28,7 +27,6 @@ declare namespace API {
 
   /*************** 规则设置相关  *********************/
   type Rule = {
-    id: number;
     name: string;
     regex: string;
   };
