@@ -54,14 +54,15 @@ def predict_task(input, channel, vectorizer, model):
 def main():
     # 加载数据
     goodqueries = load('./data/goodqueries.data')
+    randomjson = load('./data/randomjson.data')
     badqueries = load('./data/badqueries.data')
 
     # 创建向量化工具
     vectorizer = TfidfVectorizer()
-    vectorizer.fit(goodqueries + badqueries)
+    vectorizer.fit(goodqueries + randomjson + badqueries)
 
     # 加载模型
-    model = joblib.load('./model/lr.pkl')
+    model = joblib.load('./model/ml.pkl')
 
     # 创建线程池
     executor = ThreadPoolExecutor(max_workers=7)
