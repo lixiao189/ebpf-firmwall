@@ -42,6 +42,7 @@ func wafStart(ch *amqp.Channel, ctx context.Context) {
 			// Websites api
 			adminAPI.GET("/websites/list", ListWebsitesController)
 			adminAPI.POST("/websites/add", AddWebsiteController)
+			adminAPI.POST("/websites/update", UpdateWebsiteController)
 			adminAPI.POST("/websites/delete", DeleteWebsiteController)
 		}
 	}

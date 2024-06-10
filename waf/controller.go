@@ -202,6 +202,28 @@ func AddWebsiteController(c *gin.Context) {
 	c.JSON(http.StatusOK, ResponseOK("Website added"))
 }
 
+// UpdateWebsiteController handles update website request
+func UpdateWebsiteController(c *gin.Context) {
+	var website Website
+	if err := c.BindJSON(&website); err != nil {
+		c.String(http.StatusBadRequest, "Bad Request")
+		return
+	}
+
+	for i, w := range Websites {
+		if w.Name == website.Name {
+			Websites[i] = website
+			// 写入到配置文件中
+			viper.Set("websites", Websites)
+			viper.WriteConfig()
+			c.JSON(http.StatusOK, ResponseOK("Website updated"))
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, ResponseFailed(404, "Website not found"))
+}
+
 // DeleteWebsiteController handles delete website request
 func DeleteWebsiteController(c *gin.Context) {
 	var website Website
