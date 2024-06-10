@@ -7,6 +7,8 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 	"regexp"
 	"strings"
 
@@ -126,13 +128,13 @@ func UpdateUserController(c *gin.Context) {
 
 	if session.Get("name") == nil {
 		c.JSON(http.StatusOK, ResponseFailed(StatusNotLogin, "not login"))
-        return
+		return
 	}
 
 	name := session.Get("name").(string)
 	if name != ServerConfig.User {
 		c.JSON(http.StatusOK, ResponseFailed(StatusNotLogin, "not admin"))
-        return
+		return
 	}
 
 	if req.Username != "" && req.Password != "" {
@@ -143,11 +145,11 @@ func UpdateUserController(c *gin.Context) {
 		viper.WriteConfig()
 	} else {
 		c.JSON(http.StatusOK, ResponseFailed(StatusParamsError, "Password cannot be empty"))
-        return
+		return
 	}
 
-    // 清理 session
-    session.Clear()
+	// 清理 session
+	session.Clear()
 
 	c.JSON(http.StatusOK, ResponseOK("User updated"))
 }
@@ -237,6 +239,14 @@ func AddWebsiteController(c *gin.Context) {
 	viper.Set("websites", Websites)
 	viper.WriteConfig()
 
+	// 更新网页反向代理
+	target, err := url.Parse(website.URL)
+	if err != nil {
+		c.JSON(http.StatusOK, ResponseFailed(StatusSystemError, "Failed to parse the website URL"))
+		return
+	}
+	ProxyMap[website.API] = httputil.NewSingleHostReverseProxy(target)
+
 	c.JSON(http.StatusOK, ResponseOK("Website added"))
 }
 
@@ -247,6 +257,15 @@ func UpdateWebsiteController(c *gin.Context) {
 		c.String(http.StatusBadRequest, "Bad Request")
 		return
 	}
+
+	// 更新网页反向代理
+	delete(ProxyMap, website.API)
+	target, err := url.Parse(website.URL)
+	if err != nil {
+		c.JSON(http.StatusOK, ResponseFailed(StatusSystemError, "Failed to parse the website URL"))
+		return
+	}
+	ProxyMap[website.API] = httputil.NewSingleHostReverseProxy(target)
 
 	for i, w := range Websites {
 		if w.Name == website.Name {
