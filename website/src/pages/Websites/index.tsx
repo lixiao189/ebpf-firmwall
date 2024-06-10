@@ -44,6 +44,7 @@ const WebsitesPage: React.FC = () => {
           onClick={async () => {
             const res = await deleteWebsite({
               name: record.name,
+              api: record.api,
             });
             if (res.success) {
               messageApi.success('删除成功');

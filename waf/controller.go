@@ -258,14 +258,33 @@ func UpdateWebsiteController(c *gin.Context) {
 		return
 	}
 
+	// 先从配置文件中查找到对应的 API
+	api := ""
+	for _, websiteConfig := range Websites {
+		if websiteConfig.Name == website.Name {
+			api = websiteConfig.API
+		}
+	}
+
+	if api == "" {
+		c.JSON(http.StatusOK, ResponseFailed(StatusParamsError, "record not found"))
+		return
+	}
+
 	// 更新网页反向代理
-	delete(ProxyMap, website.API)
+	delete(ProxyMap, api)
 	target, err := url.Parse(website.URL)
 	if err != nil {
 		c.JSON(http.StatusOK, ResponseFailed(StatusSystemError, "Failed to parse the website URL"))
 		return
 	}
-	ProxyMap[website.API] = httputil.NewSingleHostReverseProxy(target)
+	proxy := httputil.NewSingleHostReverseProxy(target)
+	d := proxy.Director
+	proxy.Director = func(r *http.Request) {
+		d(r)
+		r.Host = target.Host
+	}
+	ProxyMap[website.API] = proxy
 
 	for i, w := range Websites {
 		if w.Name == website.Name {

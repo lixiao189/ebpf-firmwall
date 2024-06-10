@@ -44,6 +44,7 @@ export async function updateWebsite(
 export async function deleteWebsite(
   params: {
     name: string;
+    api: string;
   },
   options?: { [key: string]: any },
 ) {
