@@ -2,6 +2,7 @@ import { login } from '@/services/user';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { LoginFormPage, ProFormText } from '@ant-design/pro-components';
 import { Helmet } from '@umijs/max';
+import { message } from 'antd';
 import { createStyles } from 'antd-style';
 
 const useStyles = createStyles(({}) => {
@@ -20,61 +21,69 @@ const useStyles = createStyles(({}) => {
 
 const LoginPage: React.FC = () => {
   const { styles } = useStyles();
+  const [messageApi, contextHolder] = message.useMessage();
 
   return (
-    <div className={styles.container}>
-      <Helmet>
-        <title>登录页</title>
-      </Helmet>
+    <>
+      {contextHolder}
+      <div className={styles.container}>
+        <Helmet>
+          <title>登录页</title>
+        </Helmet>
 
-      <div
-        style={{
-          flex: 1,
-          padding: '32px 0',
-        }}
-      >
-        <LoginFormPage
-          containerStyle={{
-            backgroundColor: 'rgba(255,255,255,0.25)',
-            backdropFilter: 'blur(4px)',
-          }}
-          onFinish={async (values) => {
-            await login(values as API.LoginRequest);
-            window.location.href = '/dashboard';
+        <div
+          style={{
+            flex: 1,
+            padding: '32px 0',
           }}
         >
-          <ProFormText
-            name="username"
-            fieldProps={{
-              size: 'large',
-              prefix: <UserOutlined />,
+          <LoginFormPage
+            containerStyle={{
+              backgroundColor: 'rgba(255,255,255,0.25)',
+              backdropFilter: 'blur(4px)',
             }}
-            placeholder="用户名"
-            rules={[
-              {
-                required: true,
-                message: '请输入用户名!',
-              },
-            ]}
-          />
+            onFinish={async (values) => {
+              const res = await login(values as API.LoginRequest);
+              if (res.success) {
+                window.location.href = '/dashboard';
+              } else {
+                messageApi.error('登录失败');
+              }
+            }}
+          >
+            <ProFormText
+              name="username"
+              fieldProps={{
+                size: 'large',
+                prefix: <UserOutlined />,
+              }}
+              placeholder="用户名"
+              rules={[
+                {
+                  required: true,
+                  message: '请输入用户名!',
+                },
+              ]}
+            />
 
-          <ProFormText.Password
-            name="password"
-            fieldProps={{
-              size: 'large',
-              prefix: <LockOutlined />,
-            }}
-            placeholder="密码"
-            rules={[
-              {
-                required: true,
-                message: '请输入密码!',
-              },
-            ]}
-          />
-        </LoginFormPage>
+            <ProFormText.Password
+              name="password"
+              fieldProps={{
+                size: 'large',
+                prefix: <LockOutlined />,
+              }}
+              placeholder="密码"
+              rules={[
+                {
+                  required: true,
+                  message: '请输入密码!',
+                },
+              ]}
+            />
+          </LoginFormPage>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
