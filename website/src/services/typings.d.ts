@@ -13,6 +13,11 @@ declare namespace API {
     password: string;
   };
 
+  type UpdateUserRequest = {
+    username: string;
+    password: string;
+  };
+
   type UserInfo = {
     name?: string;
     hasAdmin?: boolean;

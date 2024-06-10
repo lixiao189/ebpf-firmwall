@@ -5,6 +5,7 @@ const (
 	StatusLoginFaied  = 500
 	StatusNotLogin    = 501
 	StatusSystemError = 502
+    StatusParamsError = 503
 )
 
 type LoginRequest struct {
@@ -21,6 +22,11 @@ type Response struct {
 type UserInfo struct {
 	Name     string `json:"name"`
 	HasAdmin bool   `json:"hasAdmin"`
+}
+
+type UpdateUserRequest struct {
+    Username string `json:"username"`
+    Password string `json:"password"`
 }
 
 func ResponseOK[T any](data T) Response {

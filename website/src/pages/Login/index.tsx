@@ -1,7 +1,7 @@
 import { login } from '@/services/user';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { LoginFormPage, ProFormText } from '@ant-design/pro-components';
-import { Helmet } from '@umijs/max';
+import { Helmet, useAccess } from '@umijs/max';
 import { message } from 'antd';
 import { createStyles } from 'antd-style';
 
@@ -22,6 +22,13 @@ const useStyles = createStyles(({}) => {
 const LoginPage: React.FC = () => {
   const { styles } = useStyles();
   const [messageApi, contextHolder] = message.useMessage();
+
+  const access = useAccess();
+  if (access.canSeeAdmin) {
+    setTimeout(() => {
+      window.location.href = '/rules';
+    }, 1000);
+  }
 
   return (
     <>

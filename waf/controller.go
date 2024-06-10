@@ -114,6 +114,44 @@ func InfoController(c *gin.Context) {
 	}))
 }
 
+// UpdateUserController handles update user request
+func UpdateUserController(c *gin.Context) {
+	var req UpdateUserRequest
+	if err := c.BindJSON(&req); err != nil {
+		c.String(http.StatusBadRequest, "Bad Request")
+		return
+	}
+
+	session := sessions.Default(c)
+
+	if session.Get("name") == nil {
+		c.JSON(http.StatusOK, ResponseFailed(StatusNotLogin, "not login"))
+        return
+	}
+
+	name := session.Get("name").(string)
+	if name != ServerConfig.User {
+		c.JSON(http.StatusOK, ResponseFailed(StatusNotLogin, "not admin"))
+        return
+	}
+
+	if req.Username != "" && req.Password != "" {
+		ServerConfig.User = req.Username
+		ServerConfig.Pass = req.Password
+		viper.Set("server.user", ServerConfig.User)
+		viper.Set("server.pass", ServerConfig.Pass)
+		viper.WriteConfig()
+	} else {
+		c.JSON(http.StatusOK, ResponseFailed(StatusParamsError, "Password cannot be empty"))
+        return
+	}
+
+    // 清理 session
+    session.Clear()
+
+	c.JSON(http.StatusOK, ResponseOK("User updated"))
+}
+
 // ListRulesController handles list rules request
 func ListRulesController(c *gin.Context) {
 	c.JSON(http.StatusOK, ResponseOK(Rules))

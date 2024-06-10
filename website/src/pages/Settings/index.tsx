@@ -1,8 +1,15 @@
 import { PageContainer, ProCard } from '@ant-design/pro-components';
 import { Button } from 'antd';
+import UpdateUserForm from './editForm';
 
 const SettingsPage: React.FC = () => {
   const name = localStorage.getItem('name');
+  function logout() {
+    localStorage.clear();
+    // 清理 cookie
+    document.cookie = "mysession=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    window.location.href = '/';
+  }
 
   return (
     <PageContainer
@@ -12,17 +19,19 @@ const SettingsPage: React.FC = () => {
       }}
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        <ProCard
-          bordered
-          title="登录设置"
-          extra={<Button type="primary">修改</Button>}
-        >
+        <ProCard bordered title="登录设置" extra={<UpdateUserForm />}>
           <div
-            style={{ display: 'flex', gap: '10px', flexDirection: 'column' }}
+            style={{
+              display: 'flex',
+              gap: '10px',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
           >
             <div>
               <strong>用户名</strong>: {name}
             </div>
+            <Button onClick={logout}>退出登录</Button>
           </div>
         </ProCard>
 

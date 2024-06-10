@@ -23,3 +23,16 @@ export async function info(options?: { [key: string]: any }) {
     ...(options || {}),
   });
 }
+
+export async function updateUser(
+  params: API.UpdateUserRequest,
+  options?: { [key: string]: any },
+) {
+  return request<API.Response<null>>('/api/v1/user/update', {
+    method: 'post',
+    data: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}

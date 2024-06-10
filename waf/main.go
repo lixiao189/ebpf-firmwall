@@ -28,6 +28,7 @@ func wafStart(ch *amqp.Channel, ctx context.Context) {
 		{
 			userAPI.POST("/login", LoginController)
 			userAPI.GET("/info", InfoController)
+			userAPI.POST("/update", UpdateUserController)
 		}
 
 		adminAPI := v1.Group("/admin")

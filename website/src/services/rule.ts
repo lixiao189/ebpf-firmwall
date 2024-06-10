@@ -25,8 +25,8 @@ export async function addRule(
 
 export async function updateRule(
   params: {
-    name: string;
-    regex: string;
+    username: string;
+    password: string;
   },
   options?: { [key: string]: any },
 ) {
