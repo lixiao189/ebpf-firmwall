@@ -22,8 +22,8 @@ const RulePage: React.FC = () => {
     },
     {
       title: '匹配规则',
-      key: 'regex',
-      dataIndex: 'regex',
+      key: 'regexView',
+      dataIndex: 'regexView',
     },
     {
       title: '操作',
@@ -77,7 +77,8 @@ const RulePage: React.FC = () => {
             return {
               key: item.name,
               name: item.name,
-              regex:
+              regex: item.regex,
+              regexView:
                 item.regex.length > 20
                   ? item.regex.slice(0, 20) + '...'
                   : item.regex,
